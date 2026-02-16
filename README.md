@@ -53,8 +53,8 @@ contracts/
 ### Installation
 
 ```bash
-git clone https://github.com/lisabeyy/loofta-swap.git
-cd loofta-swap
+git clone https://github.com/lisabeyy/loofta-payroll.git
+cd loofta-payroll
 npm install
 npm run dev
 ```
@@ -72,7 +72,6 @@ npm run dev:backend
 ```env
 NEXT_PUBLIC_BACKEND_URL=http://localhost:3001
 NEXT_PUBLIC_PRIVY_APP_ID=your_privy_app_id
-# Optional: NEXT_PUBLIC_HELIUS_API_KEY or NEXT_PUBLIC_SOLANA_RPC_URL
 # NEAR Intents / 1-Click: NEXT_PUBLIC_ONECLICK_JWT, etc. (see apps/frontend/env.example)
 ```
 
