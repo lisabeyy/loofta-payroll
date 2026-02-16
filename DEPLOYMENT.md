@@ -124,11 +124,15 @@ To make a **frontend** branch (e.g. `feature/near-payroll`) use a **backend** de
 1. Deploy the backend from that branch (same Vercel project for backend, or Railway/Render/Fly preview) and copy its URL.
 2. In the **frontend** Vercel project: **Settings → Environment Variables**.
 3. Set `NEXT_PUBLIC_BACKEND_URL` with:
-   - **Environment:** Preview
-   - **Branch:** e.g. `feature/near-payroll` (so only that branch’s previews use this backend)
-   - **Value:** the backend preview URL from step 1.
+   - **Environment:** **Preview** (not only Production — preview builds need this)
+   - **Branch:** e.g. `feature/near-payroll` (optional; so only that branch’s previews use this backend)
+   - **Value:** the backend preview URL from step 1 (e.g. `https://your-backend.up.railway.app`).
+4. Set `NEXT_PUBLIC_PRIVY_APP_ID` for **Preview** as well (same value as production if you use one Privy app).
+5. **Redeploy** the frontend (Deployments → … → Redeploy, or push a new commit). Next.js inlines `NEXT_PUBLIC_*` at **build time**, so existing previews won’t see new env until you redeploy. If it still shows localhost, use **Redeploy without cache**.
 
-Redeploy the frontend branch (or push a commit) so the new env is applied.
+**If you see “[API] NEXT_PUBLIC_BACKEND_URL not set” on preview:** the variable was missing when that build ran. Add it for the **Preview** environment (not only Production), then redeploy (without cache if needed).
+
+**If Privy login fails on preview:** allow the preview domain in the [Privy dashboard](https://dashboard.privy.io): open your app → **Settings** → **Allowed origins** (or **Allowed domains**) and add your preview URL, e.g. `https://your-project-*.vercel.app` or the exact preview URL (e.g. `https://loofta-swap-git-feature-xxx-team.vercel.app`). Without this, Privy blocks the login for that origin.
 
 ---
 

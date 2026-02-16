@@ -8,16 +8,10 @@ import { DatabaseModule } from './database/database.module';
 import { RedisModule } from './redis/redis.module';
 
 // Feature modules
-import { OrganizationsModule } from './modules/organizations/organizations.module';
-import { ClaimsModule } from './modules/claims/claims.module';
 import { IntentsModule } from './modules/intents/intents.module';
-import { TokensModule } from './modules/tokens/tokens.module';
-import { LotteryModule } from './modules/lottery/lottery.module';
 import { CronModule } from './modules/cron/cron.module';
 import { HealthModule } from './modules/health/health.module';
 import { PayrollModule } from './modules/payroll/payroll.module';
-import { DealsModule } from './modules/deals/deals.module';
-import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
@@ -55,15 +49,9 @@ import { UsersModule } from './modules/users/users.module';
 
     // Features
     HealthModule,
-    OrganizationsModule,
-    ClaimsModule,
     IntentsModule,
-    TokensModule,
-    LotteryModule,
     CronModule,
     PayrollModule,
-    DealsModule,
-    UsersModule,
   ],
 })
 export class AppModule {}

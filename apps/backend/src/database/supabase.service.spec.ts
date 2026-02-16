@@ -52,11 +52,9 @@ describe('SupabaseService', () => {
     expect(client).toBeDefined();
   });
 
-  it('should provide table accessors', () => {
+  it('should provide payroll table accessors', () => {
     service.onModuleInit();
-    expect(service.organizations).toBeDefined();
-    expect(service.claims).toBeDefined();
-    expect(service.claimIntents).toBeDefined();
-    expect(service.users).toBeDefined();
+    expect(service.payrollBatches).toBeDefined();
+    expect(service.payrollRecipients).toBeDefined();
   });
 });

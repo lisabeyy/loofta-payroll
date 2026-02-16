@@ -1,7 +1,7 @@
 /**
  * API Client for frontend to use with NestJS backend
- * 
- * This client provides type-safe access to all backend endpoints.
+ *
+ * This client provides type-safe access to payroll and intents endpoints.
  * Import types from @/types/database.types for full type safety.
  */
 
@@ -62,95 +62,7 @@ class ApiClient {
     }>('GET', '/health');
   }
 
-  // Organizations
-  organizations = {
-    list: () =>
-      this.request<{ organizations: any[] }>('GET', '/organizations'),
-
-    get: (id: string) =>
-      this.request<{ organization: any }>('GET', `/organizations/${id}`),
-
-    getPublic: (referralCode: string) =>
-      this.request<{ name: string; logo_url: string | null; bg_color: string | null }>(
-        'GET',
-        `/organizations/public/by-referral?code=${encodeURIComponent(referralCode)}`,
-      ),
-
-    create: (data: any) =>
-      this.request<{ organization: any }>('POST', '/organizations', data),
-
-    update: (data: any) =>
-      this.request<{ organization: any }>('PUT', '/organizations', data),
-
-    delete: (id: string) =>
-      this.request<{ success: boolean }>('DELETE', `/organizations?id=${id}`),
-  };
-
-  // Claims
-  claims = {
-    create: (data: {
-      amount: number;
-      toSel: { symbol: string; chain: string };
-      recipient: string;
-      userId?: string;
-      userEmail?: string;
-    }) =>
-      this.request<{ id: string; link: string }>('POST', '/claims/create', data),
-
-    get: (id: string) =>
-      this.request<{ claim: any }>('GET', `/claims/${id}`),
-
-    getWithIntent: (id: string) =>
-      this.request<{ claim: any; intent: any | null }>('GET', `/claims/${id}/latest-intent`),
-
-    requestDeposit: (data: {
-      claimId: string;
-      fromToken: {
-        tokenId: string;
-        symbol: string;
-        chain: string;
-        decimals: number;
-      };
-      amount: string;
-      userAddress?: string;
-      orgReferral?: string;
-    }) =>
-      this.request<{
-        depositAddress?: string;
-        memo?: string | null;
-        deadline?: string;
-        timeEstimate?: number;
-        quoteId?: string;
-        minAmountInFormatted?: string;
-        directTransfer?: boolean;
-      }>('POST', '/claims/deposit', data),
-  };
-
-  // Tokens
-  tokens = {
-    list: () =>
-      this.request<{ tokens: any[] }>('GET', '/tokens'),
-
-    search: (query: string) =>
-      this.request<{ tokens: any[] }>('GET', `/tokens/search?q=${encodeURIComponent(query)}`),
-
-    byChain: (chain: string) =>
-      this.request<{ tokens: any[] }>('GET', `/tokens/by-chain?chain=${encodeURIComponent(chain)}`),
-
-    popular: () =>
-      this.request<{ tokens: any[] }>('GET', '/tokens/popular'),
-
-    stablecoins: () =>
-      this.request<{ tokens: any[] }>('GET', '/tokens/stablecoins'),
-
-    price: (symbol: string, chain: string) =>
-      this.request<{ price: number | null }>(
-        'GET',
-        `/tokens/price?symbol=${encodeURIComponent(symbol)}&chain=${encodeURIComponent(chain)}`,
-      ),
-  };
-
-  // Intents
+  // Intents (used by payroll for NEAR intents)
   intents = {
     quote: (data: {
       fromTokenId: string;
@@ -197,51 +109,10 @@ class ApiClient {
     },
   };
 
-  // Lottery
-  lottery = {
-    contract: () =>
-      this.request<{
-        address: string;
-        chain: string;
-        chainId: number;
-        referralCode: string;
-      }>('GET', '/lottery/contract'),
-
-    encode: (recipientAddress: string) =>
-      this.request<{ calldata: string; contractAddress: string }>(
-        'POST',
-        '/lottery/encode',
-        { recipientAddress },
-      ),
-
-    estimate: (ethAmount: number) =>
-      this.request<{ ethAmount: number; estimatedTickets: number }>(
-        'GET',
-        `/lottery/estimate?ethAmount=${ethAmount}`,
-      ),
-
-    calculateEth: (tickets: number) =>
-      this.request<{ tickets: number; ethNeeded: number }>(
-        'GET',
-        `/lottery/calculate-eth?tickets=${tickets}`,
-      ),
-  };
-
   // Cron (admin only)
   cron = {
     status: () =>
-      this.request<{ isProcessing: boolean }>('GET', '/cron/status'),
-
-    process: (cronSecret?: string) => {
-      const headers: Record<string, string> = {};
-      if (cronSecret) headers['Authorization'] = `Bearer ${cronSecret}`;
-      return this.request<{ success: boolean; processed: number; results: any[] }>(
-        'GET',
-        '/cron/process-claims',
-        undefined,
-        { headers },
-      );
-    },
+      this.request<{ status: string }>('GET', '/cron/status'),
   };
 }
 

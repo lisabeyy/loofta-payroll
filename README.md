@@ -1,25 +1,23 @@
-# Loofta Pay
+# Loofta Pay — Payroll
 
-**Multi-chain crypto payments made simple and private.**
+**Multi-chain payroll and contributor payments, gas abstracted via NEAR Intents.**
 
-Loofta Pay is a non-custodial payment platform that lets you create payment links and receive crypto in any token you choose — regardless of what chain or token your payer uses. Pay privately with **Privacy Cash** (USDC on Solana), and withdraw only to AML-compliant addresses via **Range**.
+Loofta Payroll lets you create organizations, invite contributors, set up deals, and pay in crypto across chains. Pay out in the token and network you choose; NEAR Intents handles routing. Optional on-chain attestation records completed payments on NEAR for audit.
 
 ## Features
 
-- **Payment links** — Create a claim, share the link (`/c/[id]`). Payers send any supported token; you receive the token and chain you configured.
-- **Multi-chain** — Accept payments from 20+ blockchains: Ethereum, Arbitrum, Base, Polygon, Solana, Bitcoin, TON, Zcash, and more.
-- **Privacy Cash (USDC on Solana)** — Pay or receive privately using [Privacy Cash](https://privacy.cash/). Private payments settle in USDC on Solana via zero-knowledge privacy; payers can use Phantom to complete the transfer.
-- **Private withdrawals** — Withdraw your embedded-wallet balance privately via Privacy Cash. Destination addresses are checked with **Range** for AML compliance; withdrawal is only allowed to compliant addresses.
-- **Cross-chain routing** — NEAR Intents routes cross-chain payments; same-chain swaps use Biconomy or Rhinestone.
-- **Embedded wallet** — Privy-powered embedded Solana wallet for receiving and withdrawing USDC; no separate wallet required for basic flows.
-- **Optional private-only claims** — Creators can require private payments only on a payment link.
+- **Organizations** — Create orgs, add contributors (team or contractors), manage roles (owner, admin, contributor).
+- **Deals** — Create deals, invite contributors by email, set amounts and tokens; contributors accept and confirm delivery; you release payment.
+- **Invoices** — Generate invoices from deals; pay in one go. Gas abstracted via NEAR Intents.
+- **Pay flow** — Pay contributors in 20+ chains/tokens; same-chain or cross-chain routing (Biconomy, Rhinestone, NEAR Intents).
+- **NEAR attestation** — Optional on-chain proof per completed payment (claim id, amount, token, execution ref) for hackathon/audit.
+- **Email login** — Privy (email-only) for embedded wallet and auth; no separate wallet required for basic use.
 
-## Tech Stack
+## Tech stack
 
-- **Frontend**: [Next.js 16](https://nextjs.org/) (App Router), TypeScript, Tailwind CSS, Framer Motion, [Privy](https://privy.io/)
-- **Backend**: [NestJS](https://nestjs.com/), Supabase (Postgres), Redis (locks)
-- **Payments & privacy**: [Privacy Cash](https://privacy.cash/) (USDC on Solana), [NEAR Intents](https://near.org/), [Biconomy](https://biconomy.io/), [Rhinestone](https://rhinestone.dev/)
-- **Compliance**: [Range](https://range.org/) (address risk / AML check for withdrawals)
+- **Frontend**: Next.js (App Router), TypeScript, Tailwind, [Privy](https://privy.io/)
+- **Backend**: NestJS, Supabase (Postgres)
+- **Payments**: [NEAR Intents](https://near.org/), [Biconomy](https://biconomy.io/), [Rhinestone](https://rhinestone.dev/)
 
 ## Project structure
 
@@ -27,24 +25,22 @@ Monorepo (npm workspaces):
 
 ```
 apps/
-├── frontend/     # Next.js app (payment links, claim, withdraw, swap)
+├── frontend/
 │   └── src/
 │       ├── app/
-│       │   ├── c/[id]/     # Payment link page (pay with any token or Privacy Cash)
-│       │   ├── claim/      # Create payment request
-│       │   ├── link/       # Username-based payment link
-│       │   ├── api/
-│       │   │   ├── claims/ # Claim CRUD, deposit, quote
-│       │   │   ├── risk/   # Range address check (AML)
-│       │   │   └── ...
-│       │   └── ...
-│       ├── components/     # BalanceModal (withdraw + Range), Header, ...
-│       └── services/       # privacyCash, nearIntents, solanaBalance, ...
-└── backend/      # NestJS API (claims, deposit, cron, migrations)
+│       │   ├── payroll/           # Payroll app
+│       │   │   ├── [orgId]/        # Org: team, deals, pay, invoices, history
+│       │   │   ├── invite/[token]/ # Contributor invite onboarding
+│       │   │   └── my-invoices/
+│       │   └── api/                # Payroll API routes (quote, etc.)
+│       ├── components/             # NewDealModal, DealContributorView, …
+│       └── services/api/           # payroll, deals
+└── backend/
     └── src/
-        ├── modules/claims/
-        ├── modules/cron/
-        └── ...
+        ├── modules/                # payroll, users, deals, …
+        └── supabase/migrations/
+contracts/
+└── payroll-attestation/            # NEAR contract (Rust) for payment proof
 ```
 
 ## Getting started
@@ -57,18 +53,13 @@ apps/
 ### Installation
 
 ```bash
-# Clone the repository
 git clone https://github.com/lisabeyy/loofta-swap.git
 cd loofta-swap
-
-# Install dependencies (root + workspaces)
 npm install
-
-# Start frontend dev server
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). For full flow (deposits, cron), run the backend as well:
+Open [http://localhost:3000/payroll](http://localhost:3000/payroll). For full flow (APIs, DB), run the backend:
 
 ```bash
 npm run dev:backend
@@ -79,25 +70,10 @@ npm run dev:backend
 **Frontend** (`apps/frontend/.env.local`):
 
 ```env
-# Supabase (auth, optional server-side)
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-SUPABASE_SECRET_KEY=your_supabase_service_role_key
-
-# Privy (auth + embedded Solana wallet)
-NEXT_PUBLIC_PRIVY_APP_ID=your_privy_app_id
-
-# Solana (Privacy Cash, withdraw)
-NEXT_PUBLIC_SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
-# Or: NEXT_PUBLIC_HELIUS_API_KEY=your_helius_key
-
-# Range (AML check for withdrawals – server-side proxy)
-# Add RANGE_API_KEY in backend; frontend calls /api/risk/address
-
-# Backend URL (for deposit, claims)
 NEXT_PUBLIC_BACKEND_URL=http://localhost:3001
-
-# Swap / intents
-NEXT_PUBLIC_ONECLICK_JWT=your_oneclick_jwt
+NEXT_PUBLIC_PRIVY_APP_ID=your_privy_app_id
+# Optional: NEXT_PUBLIC_HELIUS_API_KEY or NEXT_PUBLIC_SOLANA_RPC_URL
+# NEAR Intents / 1-Click: NEXT_PUBLIC_ONECLICK_JWT, etc. (see apps/frontend/env.example)
 ```
 
 **Backend** (`apps/backend/.env.local`):
@@ -105,79 +81,54 @@ NEXT_PUBLIC_ONECLICK_JWT=your_oneclick_jwt
 ```env
 SUPABASE_URL=your_supabase_url
 SUPABASE_SECRET=your_supabase_service_role_key
-RANGE_API_KEY=your_range_api_key   # For /api/risk/address proxy
+# NEAR attestation: NEAR_ATTESTATION_CONTRACT_ID, NEAR_ATTESTATION_NEAR_ACCOUNT_ID, NEAR_ATTESTATION_NEAR_PRIVATE_KEY, NEAR_NETWORK_ID
 # See apps/backend/env.template for full list
 ```
 
-See `apps/backend/supabase/REMOTE_DEV.md` for using a remote Supabase project instead of local Docker.
+See `apps/backend/supabase/REMOTE_DEV.md` for using a remote Supabase project.
 
 ## Scripts
 
 | Command | Description |
 |---------|-------------|
-| `npm run dev` | Start frontend (Next.js) |
-| `npm run dev:backend` | Start backend (NestJS) |
-| `npm run dev:all` | Frontend + backend |
+| `npm run dev` | Start frontend |
+| `npm run dev:backend` | Start backend |
 | `npm run build` | Build frontend |
-| `npm run build:all` | Build all workspaces |
 | `npm run start` | Start frontend (production) |
 | `npm run lint` | Lint all workspaces |
-| `npm run test` | Run backend tests |
-| `contracts/payroll-attestation/deploy.sh` | Build NEAR attestation WASM; use `deploy` arg to deploy to mainnet (see [NEAR attestation](#near-attestation-on-chain-payment-proof)) |
+| `npm run db:migrate:local` | Reset local DB and apply migrations |
+| `npm run db:migrate:prod` | Push migrations to linked remote Supabase |
 
-**Database (backend):**
+**NEAR payroll attestation contract:**
 
-- `npm run db:start --workspace=@loofta/backend` — Start local Supabase (Docker)
-- `npm run db:migrate:local` — Reset local DB and apply migrations
-- `npm run db:migrate:prod` — Push migrations to linked remote project (see `apps/backend/supabase/REMOTE_DEV.md`)
+```bash
+cd contracts/payroll-attestation
+./deploy.sh                    # build only
+CONTRACT_ACCOUNT=payroll-attestation.yourname.near INIT_CALLER=your-backend.near ./deploy.sh deploy-only
+```
 
 ## Deployment
 
-Deploys run from the **`main`** branch via GitHub Actions.
+| App      | Platform | Notes |
+|----------|----------|--------|
+| Backend  | Railway  | `.github/workflows/deploy-backend.yml` on push to `main` when `apps/backend/**` changes. Set **`RAILWAY_TOKEN`** (optional **`RAILWAY_SERVICE_ID`**). |
+| Frontend | Vercel  | Auto-deploys on push to `main`. Set **Preview** env vars for branch deploys: `NEXT_PUBLIC_BACKEND_URL`, `NEXT_PUBLIC_PRIVY_APP_ID`. |
+| DB       | GitHub Actions | Migrations when `apps/backend/supabase/migrations/**` change on `main`. |
 
-| App      | Platform | Behavior |
-|----------|----------|----------|
-| Backend  | Railway  | **Action** `.github/workflows/deploy-backend.yml` runs on push to `main` when `apps/backend/**` or root package files change. Add repo secret **`RAILWAY_TOKEN`** (Railway → Project → Settings → Tokens). Optional **`RAILWAY_SERVICE_ID`** if the project has multiple services. |
-| Frontend | Vercel   | Auto-deploys on push to `main`. |
-| DB       | GitHub Actions | Migrations when `apps/backend/supabase/migrations/**` change on `main` (`.github/workflows/deploy-migrations.yml`). |
+See [DEPLOYMENT.md](DEPLOYMENT.md) for full checklist (contract, backend env, frontend env, Privy allowed origins).
 
 ## NEAR attestation (on-chain payment proof)
 
-Completed claim payments can be recorded on NEAR for hackathon/audit: one on-chain record per claim (claim id, amount, token, execution ref). Optional; if not configured, the app works without it.
+Optional: completed deal payments can be recorded on NEAR (one record per payment: claim id, amount, token, execution ref).
 
-- **Contract**: `contracts/payroll-attestation` (payroll attestation, Rust, `record_payment` / `get_payment`).
-- **Cost**: Very low (a few NEAR one-time; storage ~0.0001 NEAR/byte).
-- **Deploy**: See [contracts/payroll-attestation/README.md](contracts/payroll-attestation/README.md). Quick path:
-  ```bash
-  cd contracts/payroll-attestation
-  chmod +x deploy.sh
-  ./deploy.sh                    # build only
-  CONTRACT_ACCOUNT=attestation.yourname.near INIT_CALLER=your-backend.near ./deploy.sh deploy
-  ```
-- **Backend env**: `NEAR_ATTESTATION_CONTRACT_ID`, `NEAR_ATTESTATION_NEAR_ACCOUNT_ID`, `NEAR_ATTESTATION_NEAR_PRIVATE_KEY`, `NEAR_NETWORK_ID=mainnet` (see `apps/backend/env.template`). When set, the backend calls the contract after each successful claim payment and stores the NEAR tx hash on the claim; the claim page shows “Attested on NEAR” with a link when present.
-
-## Privacy Cash & withdraw flow
-
-1. **Pay privately (claim page)**  
-   Payer selects “Pay USDC on Solana”; cross-chain funds land in their Phantom (or configured) Solana wallet, then they complete the private transfer via Privacy Cash (Phantom signs).
-
-2. **Withdraw balance**  
-   User opens Balance from the header → Withdraw. They enter amount and destination Solana address. The app checks the address with **Range** (AML); only when the address is compliant does “Withdraw” enable. Withdrawal is executed via Privacy Cash (private).
-
-3. **Range**  
-   Destination addresses are verified server-side (`/api/risk/address`) using Range; keys stay on the server. See `apps/frontend/src/app/api/risk/address/route.ts`.
-
-## Supported chains
-
-Ethereum, Arbitrum, Base, Polygon, BNB Chain, Solana, Bitcoin, Zcash, TON, Cardano, XRP, Dogecoin, Litecoin, Stellar, Tron, SUI, Aurora, Gnosis, and others via NEAR Intents and provider configs.
+- **Contract**: `contracts/payroll-attestation` (Rust; `record_payment` / `get_payment`).
+- **Backend env**: `NEAR_ATTESTATION_CONTRACT_ID`, `NEAR_ATTESTATION_NEAR_ACCOUNT_ID`, `NEAR_ATTESTATION_NEAR_PRIVATE_KEY`, `NEAR_NETWORK_ID=mainnet`. When set, the backend calls the contract after each successful payment and stores the NEAR tx hash; the UI can show “Attested on NEAR” with a link.
 
 ## Links
 
-- **Website**: [loofta.xyz](https://pay.loofta.xyz)
+- **Payroll**: [pay.loofta.xyz](https://pay.loofta.xyz)
 - **Twitter**: [@looftapay](https://x.com/looftapay)
 - **Telegram**: [t.me/looftaxyz](https://t.me/looftaxyz)
-- **Privacy Cash**: [privacy.cash](https://privacy.cash/)
-- **Range**: [range.org](https://range.org/)
 
 ## License
 

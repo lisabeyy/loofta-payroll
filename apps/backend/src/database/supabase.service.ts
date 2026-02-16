@@ -38,27 +38,7 @@ export class SupabaseService implements OnModuleInit {
     return this.client;
   }
 
-  // Convenience methods for common tables
-  get organizations() {
-    return this.client.from('organizations');
-  }
-
-  get claims() {
-    return this.client.from('claims');
-  }
-
-  get claimIntents() {
-    return this.client.from('claim_intents');
-  }
-
-  get users() {
-    return this.client.from('users');
-  }
-
-  get appUsers() {
-    return this.client.from('app_users');
-  }
-
+  // Convenience methods for payroll tables
   get payrollBatches() {
     return this.client.from('payroll_batches');
   }

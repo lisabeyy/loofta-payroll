@@ -105,7 +105,7 @@ export class HealthController {
     try {
       const client = this.supabaseService.getClient();
       // Simple query to verify connection
-      const { error } = await client.from('organizations').select('id').limit(1);
+      const { error } = await client.from('payroll_organizations').select('id').limit(1);
       return error ? 'down' : 'up';
     } catch {
       return 'down';
