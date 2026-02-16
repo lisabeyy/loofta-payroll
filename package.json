@@ -1,0 +1,22 @@
+{
+  "name": "loofta-swap",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=@loofta/frontend",
+    "dev:backend": "npm run start:dev --workspace=@loofta/backend",
+    "dev:all": "concurrently \"npm run dev\" \"npm run dev:backend\"",
+    "build": "npm run build --workspace=@loofta/frontend",
+    "build:backend": "npm run build --workspace=@loofta/backend",
+    "build:all": "npm run build --workspaces",
+    "start": "npm run start --workspace=@loofta/frontend",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspace=@loofta/backend"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

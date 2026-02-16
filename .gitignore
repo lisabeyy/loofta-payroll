@@ -1,0 +1,46 @@
+# Dependencies
+node_modules
+
+# Build outputs
+.next
+dist
+*.tsbuildinfo
+
+# Environment files
+.env.*
+.env
+
+# IDE
+.DS_Store
+**/.DS_Store
+
+# Misc
+service-account.json
+scripts
+recover-funds.js
+# Privy / auth keys (do not commit)
+*.pem
+private.pem
+public.pem
+
+# Frontend public files
+apps/frontend/public/loofta-swapxprivacycaash.code-workspace
+
+# Backend build output
+apps/backend/dist
+
+# Frontend build output  
+apps/frontend/.next
+
+# Supabase local files (but keep migrations)
+.supabase/
+**/supabase/.temp/
+**/supabase/.branches/
+**/.supabase/
+
+# Vercel
+.vercel
+
+# NEAR / Rust contract build
+contracts/**/target/
+*.wasm
